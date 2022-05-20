@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const userCtrl = require('../controllers/userCtrl')
 const auth = require('../middleware/auth')
+const authAdmin = require('../middleware/authAdmin')
 
 router.post('/register', userCtrl.register)
 
@@ -17,6 +18,8 @@ router.get('/getall', auth,  userCtrl.getUsers)
 router.patch('/addcart', auth, userCtrl.addCart)
 
 router.delete('/product/:id/cart', auth, userCtrl.deleteCart)
+
+router.delete('/user/:id', authAdmin, userCtrl.deleteUser)
 
 router.put('/product/:id/cart', auth, userCtrl.updateCart)
 

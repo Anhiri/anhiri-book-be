@@ -11,7 +11,7 @@ const userCtrl = {
             const user = await Users.findOne({email})
             if(user) return res.status(400).json({msg: "The email already exists."})
 
-            if(password.length < 6) 
+            if(password.length < 6)
                 return res.status(400).json({msg: "Password is at least 6 characters long."})
 
             // Password Encryption
@@ -89,7 +89,7 @@ const userCtrl = {
         } catch (err) {
             return res.status(500).json({msg: err.message})
         }
-        
+
     },
     getUser: async (req, res) =>{
         try {
@@ -103,7 +103,7 @@ const userCtrl = {
     },
     getUsers:async (req,res) =>{
         try {
-            const users = await Users.find()
+            const users = await Users.find({deletedAt: {$ne: null}}).lean()
             res.json(users)
         } catch (err) {
             return res.status(500).json({msg: err.message})
@@ -178,6 +178,17 @@ const userCtrl = {
 
             res.json(history)
         } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }
+    },
+    deleteUser: async (req, res) => {
+        try {
+            const userId = req.params.id;
+
+            await Users.updateOne({_id: userId}, { $set: { deletedAt: new Date() }})
+
+            return res.json({msg: 'Deleted user'});
+        } catch (e) {
             return res.status(500).json({msg: err.message})
         }
     }
