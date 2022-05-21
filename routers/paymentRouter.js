@@ -5,11 +5,11 @@ const authAdmin = require('../middleware/authAdmin')
 
 
 router.route('/payment')
-    .get( paymentCtrl.getPayments)
+    .get(auth, authAdmin, paymentCtrl.getPayments)
     .post(auth, paymentCtrl.createPayment)
 
 router.route('/payment/statistic')
-    .get(paymentCtrl.statistic)
+    .get(auth, authAdmin, paymentCtrl.statistic)
 
 
 module.exports = router
