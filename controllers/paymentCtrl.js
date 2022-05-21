@@ -23,11 +23,11 @@ const paymentCtrl = {
             for (const c of cart) {
                 const product = await Products.findById(c.product._id);
                 if (!product) {
-                    return res.status(400).json({msg: "Product not found."}) 
+                    return res.status(400).json({msg: "Product not found."})
                 }
 
                 if (product.total < c.quantify) {
-                    return res.status(400).json({msg: "Sold out."})   
+                    return res.status(400).json({msg: "Sold out."})
                 }
             }
 
@@ -39,12 +39,49 @@ const paymentCtrl = {
                 return sold(item.product._id, item.quantify)
             }))
 
-            
+
             await newPayment.save()
             res.json({msg: "Payment Succes!"})
-            
+
         } catch (err) {
             return res.status(500).json({msg: err.message})
+        }
+    },
+    statistic:async  (req, res, next) => {
+        try {
+            const [{total}] = await Payments.aggregate([
+                {
+                    "$addFields": {
+                        "cart": {
+                            "$map": {
+                                "input": "$cart",
+                                "as": "row",
+                                "in": {
+                                    "id": "$$row.product.id",
+                                    "total": { "$multiply": [ '$$row.quantify', "$$row.product.price" ]},
+                                }
+                            }
+                        },
+                    }
+                },
+                {
+                    "$unwind": "$cart"
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: '$cart.total'
+                        }
+                    }
+                }
+            ])
+
+
+            res.json({total})
+
+        } catch (e) {
+            return res.status(500).json({msg: e.message})
         }
     }
 }
@@ -52,7 +89,7 @@ const paymentCtrl = {
 const sold = async (id, quantity) =>{
     await Products.updateOne({_id: id}, {
         $inc: {
-            sold: quantity, 
+            sold: quantity,
             total: -quantity
         }
     })
