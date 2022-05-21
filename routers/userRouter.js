@@ -19,7 +19,7 @@ router.patch('/addcart', auth, userCtrl.addCart)
 
 router.delete('/product/:id/cart', auth, userCtrl.deleteCart)
 
-router.delete('/user/:id', authAdmin, userCtrl.deleteUser)
+router.delete('/:id', auth, authAdmin, userCtrl.deleteUser)
 
 router.put('/product/:id/cart', auth, userCtrl.updateCart)
 

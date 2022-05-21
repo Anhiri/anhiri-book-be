@@ -8,7 +8,7 @@ const auth = async (req, res, next) =>{
 
         const decode =jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
 
-        const user = await User.findOne({ _id: decode.id, deletedAt: { $ne: null } })
+        const user = await User.findOne({ _id: decode.id, deletedAt: null })
             .select('name email role cart')
             .lean();
 

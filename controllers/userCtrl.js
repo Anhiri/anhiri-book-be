@@ -45,6 +45,9 @@ const userCtrl = {
 
             const user = await Users.findOne({email})
             if(!user) return res.status(400).json({msg: "User does not exist."})
+            if (user.deletedAt) {
+                return res.status(400).json({msg: "User does not exist."}) 
+            }
 
             const isMatch = await bcrypt.compare(password, user.password)
             if(!isMatch) return res.status(400).json({msg: "Incorrect password."})
@@ -103,7 +106,7 @@ const userCtrl = {
     },
     getUsers:async (req,res) =>{
         try {
-            const users = await Users.find({deletedAt: {$ne: null}}).lean()
+            const users = await Users.find({deletedAt: null}).lean()
             res.json(users)
         } catch (err) {
             return res.status(500).json({msg: err.message})
